@@ -1,0 +1,38 @@
+<div class="list-group list-group-flush htmx-swap-oob" id="current-readings">
+    <div class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 border-secondary fade-in">
+        <span class="fw-bold text-light"><span class="emoji">🌡️</span> Temperature</span>
+        <span class="badge bg-primary rounded-pill fs-6 px-3 py-2">
+            {% if reading %}
+                {{ "%.1f"|format(reading.temperature) }} F
+            {% else %}
+                N/A
+            {% endif %}
+        </span>
+    </div>
+    <div class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 border-secondary fade-in">
+        <span class="fw-bold text-light"><span class="emoji">💧</span> Humidity</span>
+        <span class="badge bg-info rounded-pill fs-6 px-3 py-2 shadow-md">
+            {% if reading %}
+                {{ "%.1f"|format(reading.humidity) }}%
+            {% else %}
+                N/A
+            {% endif %}
+        </span>
+    </div>
+    <div class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 fade-in">
+        <span class="fw-bold text-light"><span class="emoji">🍃</span> CO₂</span>
+        <span class="badge bg-success rounded-pill fs-6 px-3 py-2">
+            {% if reading %}
+                {{ reading.co2|int }} ppm
+            {% else %}
+                N/A
+            {% endif %}
+        </span>
+    </div>
+    <div class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 border-bottom-0 fade-in">
+        <span class="fw-bold text-light"><span class="emoji">💡</span> Lights: </span>
+        <span class="badge {% if lights_on %}bg-warning{% else %}bg-secondary{% endif %} rounded-pill fs-6 px-3 py-2">
+            {% if lights_on %}ON{% else %}OFF{% endif %}
+        </span>
+    </div>
+</div>

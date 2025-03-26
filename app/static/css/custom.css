@@ -1,0 +1,32 @@
+/* Emoji sizing */
+.emoji {
+    font-size: 1.5em; /* Adjust size as needed */
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 1;
+}
+
+/* Navbar brand emoji (Smart Garden logo) */
+.navbar-brand .emoji {
+    font-size: 1.4em;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+.htmx-indicator {
+    opacity: 0;
+    transition: opacity 300ms ease-in;
+}
+.htmx-request .htmx-indicator {
+    opacity: 1;
+}
+.htmx-request.htmx-indicator {
+    opacity: 1;
+}

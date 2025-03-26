@@ -1,0 +1,27 @@
+{% extends "base.html" %} {% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2 text-center">
+        <h1 class="display-4">Welcome to Smart Garden 👋</h1>
+        <p class="lead">A modern indoor growing solution.</p>
+
+        {% if not current_user.is_authenticated %}
+        <div class="mt-4">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-primary me-2"
+                >Login</a
+            >
+            <a
+                href="{{ url_for('auth.register') }}"
+                class="btn btn-outline-primary"
+                >Register</a
+            >
+        </div>
+        {% else %}
+        <div class="mt-4">
+            <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary"
+                >Go to Dashboard</a
+            >
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
