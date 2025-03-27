@@ -4,6 +4,8 @@ import json
 from flask_login import login_required, current_user
 from app.models import SensorReading
 from sqlalchemy import func
+from flask import Response
+from app.camera import generate_frames
 
 main = Blueprint('main', __name__)
 
@@ -28,6 +30,16 @@ def dashboard():
                           lights_on=lights_on,
                         chart_title="Last 48 Hours")
 
+
+@main.route('/video_feed')
+@login_required
+def video_feed():
+    """
+    Route that returns a Response streaming the video frames
+    Uses multipart/x-mixed-replace to continuously update the image
+    """
+    return Response(generate_frames(), 
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
 
 @main.route('/settings')
 @login_required

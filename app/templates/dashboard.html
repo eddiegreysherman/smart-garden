@@ -45,30 +45,15 @@
             <div class="card-body">
                 <h5 class="card-title">Camera Feed</h5>
                 <div class="text-center mb-3">
-                    <img
-                        src="#"
-                        class="img-fluid rounded border"
-                        alt="Raspberry Pi Camera Stream"
-                    />
+            		<img
+    			src="{{ url_for('main.video_feed') }}"
+    			class="img-fluid rounded border"
+    			alt="Raspberry Pi Camera Stream"
+    			id="camera-feed"
+			/>
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted"
-                        >Last updated:
-                        <span id="last-update-time">Loading...</span></small
-                    >
                     <div>
-                        <button
-                            class="btn btn-sm btn-outline-primary me-2"
-                            id="snapshot-btn"
-                        >
-                            <i class="bi bi-camera"></i> Snapshot
-                        </button>
-                        <button
-                            class="btn btn-sm btn-outline-secondary"
-                            id="refresh-btn"
-                        >
-                            <i class="bi bi-arrow-clockwise"></i> Refresh
-                        </button>
                     </div>
                 </div>
             </div>
