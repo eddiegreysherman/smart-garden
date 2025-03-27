@@ -1,6 +1,4 @@
-<<<<<<< HEAD
 bcrypt==4.1.2
-=======
 Adafruit-Blinka==8.56.0
 adafruit-circuitpython-busdevice==5.2.11
 adafruit-circuitpython-connectionmanager==3.1.3
@@ -11,7 +9,6 @@ Adafruit-PlatformDetect==3.77.0
 Adafruit-PureIO==1.1.11
 bcrypt==4.1.2
 binho-host-adapter==0.1.6
->>>>>>> 770fbb6 (Update requirements.txt)
 blinker==1.9.0
 click==8.1.8
 dnspython==2.7.0
@@ -27,11 +24,9 @@ itsdangerous==2.2.0
 Jinja2==3.1.6
 MarkupSafe==3.0.2
 packaging==24.2
-<<<<<<< HEAD
 python-dotenv==1.0.0
 SQLAlchemy==2.0.39
 typing_extensions==4.13.0
-=======
 pillow==11.1.0
 pyftdi==0.56.0
 pyserial==3.5
@@ -39,8 +34,5 @@ python-dotenv==1.0.0
 pyusb==1.3.1
 RPi.GPIO==0.7.1
 SQLAlchemy==2.0.39
-sysv_ipc==1.1.0
-typing_extensions==4.12.2
->>>>>>> 770fbb6 (Update requirements.txt)
 Werkzeug==3.1.3
 WTForms==3.2.1
