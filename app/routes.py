@@ -6,7 +6,7 @@ from app.models import SensorReading, SystemSetting
 from sqlalchemy import func
 from flask import Response
 from app.camera import generate_frames
-from app.forms import TemperatureSettingsForm
+from app.forms import TemperatureSettingsForm, HumiditySettingsForm, CO2SettingsForm
 from app import db
 
 main = Blueprint('main', __name__)
@@ -33,16 +33,6 @@ def dashboard():
                         chart_title="Last 48 Hours")
 
 
-#@main.route('/video_feed')
-#@login_required
-#def video_feed():
-#    """
-#    Route that returns a Response streaming the video frames
-#    Uses multipart/x-mixed-replace to continuously update the image
-#    """
-#    return Response(generate_frames(), 
-#                    mimetype='multipart/x-mixed-replace; boundary=frame')
-
 @main.route('/video_feed')
 @login_required
 def video_feed():
@@ -51,37 +41,77 @@ def video_feed():
         mimetype='multipart/x-mixed-replace; boundary=frame'
     )
 
-
-# Commenting out the OG settings in case we have a problem.
-#
-#@main.route('/settings')
-#@login_required
-#def settings():
-#    return render_template('settings.html')
-
-@main.route('/settings', methods=['GET', 'POST'])
+@main.route('/settings')
 @login_required
 def settings():
-    temperature_form = TemperatureSettingsForm()
+    current_settings = {
+        'temperature': {
+            'min': get_system_setting('temperature', 'min', default=65),
+            'max': get_system_setting('temperature', 'max', default=75)
+        },
+        'humidity': {
+            'min': get_system_setting('humidity', 'min', default=40),
+            'max': get_system_setting('humidity', 'max', default=80)
+        },
+        'co2': {
+            'min': get_system_setting('co2', 'min', default=400),
+            'max': get_system_setting('co2', 'max', default=1500)
+        }
+    }
 
-    if request.method == 'POST':
-        setting_type = request.form.get('setting_type')
-        
-        if setting_type == 'temperature' and temperature_form.validate_on_submit():
-            # Save temperature settings
-            save_system_setting('temperature', 'min', temperature_form.temp_min.data)
-            save_system_setting('temperature', 'max', temperature_form.temp_max.data)
-            flash('Temperature settings updated successfully!', 'success')
-            return redirect(url_for('main.settings'))
+    return render_template('settings/index.html', 
+                         current_settings=current_settings)
+
+@main.route('/settings/temperature', methods=['GET', 'POST'])
+@login_required
+def temperature_settings():
+    form = TemperatureSettingsForm()
     
+    if form.validate_on_submit():
+        save_system_setting('temperature', 'min', form.temp_min.data)
+        save_system_setting('temperature', 'max', form.temp_max.data)
+        flash('Temperature settings updated successfully!', 'success')
+        return redirect(url_for('main.temperature_settings'))
+
     # Load current settings
-    temp_min = get_system_setting('temperature', 'min', default=60)
-    temp_max = get_system_setting('temperature', 'max', default=80)
-    temperature_form.temp_min.data = temp_min
-    temperature_form.temp_max.data = temp_max
+    form.temp_min.data = get_system_setting('temperature', 'min', default=65)
+    form.temp_max.data = get_system_setting('temperature', 'max', default=75)
     
-    return render_template('settings.html', 
-                          temperature_form=temperature_form)
+    return render_template('settings/temperature.html', form=form)
+
+@main.route('/settings/humidity', methods=['GET', 'POST'])
+@login_required
+def humidity_settings():
+    form = HumiditySettingsForm()
+    
+    if form.validate_on_submit():
+        save_system_setting('humidity', 'min', form.humidity_min.data)
+        save_system_setting('humidity', 'max', form.humidity_max.data)
+        flash('Humidity settings updated successfully!', 'success')
+        return redirect(url_for('main.humidity_settings'))
+
+    # Load current settings
+    form.humidity_min.data = get_system_setting('humidity', 'min', default=40)
+    form.humidity_max.data = get_system_setting('humidity', 'max', default=80)
+    
+    return render_template('settings/humidity.html', form=form)
+
+@main.route('/settings/co2', methods=['GET', 'POST'])
+@login_required
+def co2_settings():
+    form = CO2SettingsForm()
+    
+    if form.validate_on_submit():
+        save_system_setting('co2', 'min', form.co2_min.data)
+        save_system_setting('co2', 'max', form.co2_max.data)
+        flash('CO2 settings updated successfully!', 'success')
+        return redirect(url_for('main.co2_settings'))
+
+    # Load current settings
+    form.co2_min.data = get_system_setting('co2', 'min', default=400)
+    form.co2_max.data = get_system_setting('co2', 'max', default=1800)
+    
+    return render_template('settings/co2.html', form=form)
 
 def save_system_setting(setting_type, key, value):
     """Save a system-wide setting to the database"""
@@ -102,7 +132,7 @@ def save_system_setting(setting_type, key, value):
             value=str(value)
         )
         db.session.add(setting)
-    
+
     db.session.commit()
 
 def get_system_setting(setting_type, key, default=None):

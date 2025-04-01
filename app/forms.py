@@ -47,21 +47,41 @@ class LoginForm(FlaskForm):
         validators=[DataRequired()])
     submit = SubmitField('Login')
 
-# Form for temp settings and validation
 class TemperatureSettingsForm(FlaskForm):
-    setting_type = HiddenField('Setting Type', default='temperature')
     temp_min = FloatField('Minimum Temperature (°F)', 
         validators=[
             DataRequired(),
-            NumberRange(min=50, max=65, message="Temperature must be between 50°F and 65°F")
+            NumberRange(min=50, max=65)
         ])
     temp_max = FloatField('Maximum Temperature (°F)', 
         validators=[
             DataRequired(),
-            NumberRange(min=66, max=99, message="Temperature must be between 66°F and 99°F")
+            NumberRange(min=66, max=99)
         ])
-    submit = SubmitField('Save Temperature Settings')
+    submit = SubmitField('Save Settings')
 
-    def validate_temp_max(self, temp_max):
-        if temp_max.data <= self.temp_min.data:
-            raise ValidationError('Maximum temperature must be greater than minimum temperature')
+class HumiditySettingsForm(FlaskForm):
+    humidity_min = IntegerField('Minimum Humidity (%)', 
+        validators=[
+            DataRequired(),
+            NumberRange(min=0, max=100)
+        ])
+    humidity_max = IntegerField('Maximum Humidity (%)', 
+        validators=[
+            DataRequired(),
+            NumberRange(min=0, max=100)
+        ])
+    submit = SubmitField('Save Settings')
+
+class CO2SettingsForm(FlaskForm):
+    co2_min = IntegerField('Minimum CO2 (PPM)', 
+        validators=[
+            DataRequired(),
+            NumberRange(min=0, max=500)
+        ])
+    co2_max = IntegerField('Maximum CO2 (PPM)', 
+        validators=[
+            DataRequired(),
+            NumberRange(min=500, max=4000)
+        ])
+    submit = SubmitField('Save Settings')
