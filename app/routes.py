@@ -31,15 +31,24 @@ def dashboard():
                         chart_title="Last 48 Hours")
 
 
+#@main.route('/video_feed')
+#@login_required
+#def video_feed():
+#    """
+#    Route that returns a Response streaming the video frames
+#    Uses multipart/x-mixed-replace to continuously update the image
+#    """
+#    return Response(generate_frames(), 
+#                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
 @main.route('/video_feed')
 @login_required
 def video_feed():
-    """
-    Route that returns a Response streaming the video frames
-    Uses multipart/x-mixed-replace to continuously update the image
-    """
-    return Response(generate_frames(), 
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(
+        generate_frames(),
+        mimetype='multipart/x-mixed-replace; boundary=frame'
+    )
+
 
 @main.route('/settings')
 @login_required
