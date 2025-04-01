@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8 offset-md-2">
+        <h1>CO2 Settings</h1>
+        <a href="{{ url_for('main.settings') }}" class="btn btn-secondary mb-3">← Back to Settings</a>
+        
+        <form method="POST">
+            {{ form.csrf_token }}
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.co2_min.label(class="form-label") }}
+                        {{ form.co2_min(class="form-control") }}
+                        {% if form.co2_min.errors %}
+                            <div class="alert alert-danger">{{ form.co2_min.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.co2_max.label(class="form-label") }}
+                        {{ form.co2_max(class="form-control") }}
+                        {% if form.co2_max.errors %}
+                            <div class="alert alert-danger">{{ form.co2_max.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

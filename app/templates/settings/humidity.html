@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8 offset-md-2">
+        <h1>Humidity Settings</h1>
+        <a href="{{ url_for('main.settings') }}" class="btn btn-secondary mb-3">← Back to Settings</a>
+        
+        <form method="POST">
+            {{ form.csrf_token }}
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.humidity_min.label(class="form-label") }}
+                        {{ form.humidity_min(class="form-control") }}
+                        {% if form.humidity_min.errors %}
+                            <div class="alert alert-danger">{{ form.humidity_min.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="mb-3">
+                        {{ form.humidity_max.label(class="form-label") }}
+                        {{ form.humidity_max(class="form-control") }}
+                        {% if form.humidity_max.errors %}
+                            <div class="alert alert-danger">{{ form.humidity_max.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
