@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, FloatField, TimeField, SelectField, BooleanField, IntegerField, HiddenField
-from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange
+from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError, NumberRange, Optional
 from app.models import User
+from flask_login import current_user
 
 class RegistrationForm(FlaskForm):
     username = StringField('Username',
@@ -85,3 +86,42 @@ class CO2SettingsForm(FlaskForm):
             NumberRange(min=500, max=4000)
         ])
     submit = SubmitField('Save Settings')
+
+class LightSettingsForm(FlaskForm):
+    light_on_time = TimeField('Lights On Time',
+        validators=[DataRequired()])
+    light_off_time = TimeField('Lights Off Time',
+        validators=[DataRequired()])
+    submit = SubmitField('Save Settings')
+
+    def validate_light_off_time(self, field):
+        if self.light_on_time.data and field.data:
+            # Convert both times to minutes since midnight for comparison
+            on_minutes = self.light_on_time.data.hour * 60 + self.light_on_time.data.minute
+            off_minutes = field.data.hour * 60 + field.data.minute
+            if on_minutes == off_minutes:
+                raise ValidationError('On and Off times cannot be the same')
+
+class UserSettingsForm(FlaskForm):
+    email = StringField('Email Address', 
+        validators=[
+            DataRequired(),
+            Email(message="Please enter a valid email address")
+        ])
+    new_password = PasswordField('New Password',
+        validators=[
+            Optional(),  # Password is optional
+            Length(min=8, message="Password must be at least 8 characters")
+        ])
+    confirm_password = PasswordField('Confirm New Password',
+        validators=[
+            EqualTo('new_password', message='Passwords must match')
+        ])
+    enable_alerts = BooleanField('Enable Email Alerts')
+    submit = SubmitField('Save Settings')
+
+    def validate_email(self, email):
+        if email.data != current_user.email:  # Only check if email is being changed
+            user = User.query.filter_by(email=email.data).first()
+            if user:
+                raise ValidationError('That email is already registered.')

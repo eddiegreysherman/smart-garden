@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8 offset-md-2">
+        <h1>User Settings</h1>
+        <a href="{{ url_for('main.settings') }}" class="btn btn-secondary mb-3">← Back to Settings</a>
+        
+        <form method="POST">
+            {{ form.csrf_token }}
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3">
+                        {{ form.email.label(class="form-label") }}
+                        {{ form.email(class="form-control") }}
+                        {% if form.email.errors %}
+                            <div class="alert alert-danger">{{ form.email.errors[0] }}</div>
+                        {% endif %}
+                        <div class="form-text">Your email address for alerts and notifications</div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.new_password.label(class="form-label") }}
+                        {{ form.new_password(class="form-control") }}
+                        {% if form.new_password.errors %}
+                            <div class="alert alert-danger">{{ form.new_password.errors[0] }}</div>
+                        {% endif %}
+                        <div class="form-text">Leave blank to keep current password</div>
+                    </div>
+
+                    <div class="mb-3">
+                        {{ form.confirm_password.label(class="form-label") }}
+                        {{ form.confirm_password(class="form-control") }}
+                        {% if form.confirm_password.errors %}
+                            <div class="alert alert-danger">{{ form.confirm_password.errors[0] }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            {{ form.enable_alerts(class="form-check-input") }}
+                            {{ form.enable_alerts.label(class="form-check-label") }}
+                        </div>
+                        <div class="form-text">Receive email notifications for alerts</div>
+                    </div>
+
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

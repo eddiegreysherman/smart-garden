@@ -6,7 +6,7 @@ from app.models import SensorReading, SystemSetting
 from sqlalchemy import func
 from flask import Response
 from app.camera import generate_frames
-from app.forms import TemperatureSettingsForm, HumiditySettingsForm, CO2SettingsForm
+from app.forms import TemperatureSettingsForm, HumiditySettingsForm, CO2SettingsForm, LightSettingsForm, UserSettingsForm
 from app import db
 
 main = Blueprint('main', __name__)
@@ -56,6 +56,14 @@ def settings():
         'co2': {
             'min': get_system_setting('co2', 'min', default=400),
             'max': get_system_setting('co2', 'max', default=1500)
+        },
+        'light': {
+            'on_time': get_system_setting('light', 'on_time', default='06:00'),
+            'off_time': get_system_setting('light', 'off_time', default='20:00')
+        },
+        'user': {
+            'email': current_user.email,
+            'alerts_enabled': get_system_setting('user', 'alerts_enabled', default='true')
         }
     }
 
@@ -112,6 +120,60 @@ def co2_settings():
     form.co2_max.data = get_system_setting('co2', 'max', default=1800)
     
     return render_template('settings/co2.html', form=form)
+
+@main.route('/settings/light', methods=['GET', 'POST'])
+@login_required
+def light_settings():
+    form = LightSettingsForm()
+    
+    if form.validate_on_submit():
+        # Convert time objects to string for storage (HH:MM format)
+        on_time = form.light_on_time.data.strftime('%H:%M')
+        off_time = form.light_off_time.data.strftime('%H:%M')
+        
+        save_system_setting('light', 'on_time', on_time)
+        save_system_setting('light', 'off_time', off_time)
+        flash('Light schedule updated successfully!', 'success')
+        return redirect(url_for('main.light_settings'))
+
+    # Load current settings
+    on_time_str = get_system_setting('light', 'on_time', default='06:00')
+    off_time_str = get_system_setting('light', 'off_time', default='20:00')
+    
+    # Convert string times to time objects for the form
+    from datetime import datetime
+    form.light_on_time.data = datetime.strptime(on_time_str, '%H:%M').time()
+    form.light_off_time.data = datetime.strptime(off_time_str, '%H:%M').time()
+
+    return render_template('settings/light.html', form=form)
+
+@main.route('/settings/user', methods=['GET', 'POST'])
+@login_required
+def user_settings():
+    form = UserSettingsForm()
+
+    if form.validate_on_submit():
+        # Handle email change
+        if form.email.data != current_user.email:
+            current_user.email = form.email.data
+            flash('Email updated successfully!', 'success')
+
+        # Handle password change
+        if form.new_password.data:
+            current_user.set_password(form.new_password.data)
+            flash('Password updated successfully!', 'success')
+
+        # Handle alert settings
+        save_system_setting('user', 'alerts_enabled', 
+                          'true' if form.enable_alerts.data else 'false')
+
+        db.session.commit()
+        return redirect(url_for('main.user_settings'))
+
+    # Load current settings
+    form.email.data = current_user.email
+    form.enable_alerts.data = get_system_setting('user', 'alerts_enabled', default='true')
+    return render_template('settings/user.html', form=form)
 
 def save_system_setting(setting_type, key, value):
     """Save a system-wide setting to the database"""
