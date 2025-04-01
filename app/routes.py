@@ -1,11 +1,13 @@
-from flask import Blueprint, render_template, redirect, jsonify
+from flask import Blueprint, render_template, redirect, jsonify, flash, request, url_for
 from datetime import datetime, timedelta
 import json
 from flask_login import login_required, current_user
-from app.models import SensorReading
+from app.models import SensorReading, SystemSetting
 from sqlalchemy import func
 from flask import Response
 from app.camera import generate_frames
+from app.forms import TemperatureSettingsForm
+from app import db
 
 main = Blueprint('main', __name__)
 
@@ -50,10 +52,78 @@ def video_feed():
     )
 
 
-@main.route('/settings')
+# Commenting out the OG settings in case we have a problem.
+#
+#@main.route('/settings')
+#@login_required
+#def settings():
+#    return render_template('settings.html')
+
+@main.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings():
-    return render_template('settings.html')
+    temperature_form = TemperatureSettingsForm()
+
+    if request.method == 'POST':
+        setting_type = request.form.get('setting_type')
+        
+        if setting_type == 'temperature' and temperature_form.validate_on_submit():
+            # Save temperature settings
+            save_system_setting('temperature', 'min', temperature_form.temp_min.data)
+            save_system_setting('temperature', 'max', temperature_form.temp_max.data)
+            flash('Temperature settings updated successfully!', 'success')
+            return redirect(url_for('main.settings'))
+    
+    # Load current settings
+    temp_min = get_system_setting('temperature', 'min', default=60)
+    temp_max = get_system_setting('temperature', 'max', default=80)
+    temperature_form.temp_min.data = temp_min
+    temperature_form.temp_max.data = temp_max
+    
+    return render_template('settings.html', 
+                          temperature_form=temperature_form)
+
+def save_system_setting(setting_type, key, value):
+    """Save a system-wide setting to the database"""
+    # Check if setting exists
+    setting = SystemSetting.query.filter_by(
+        setting_type=setting_type,
+        key=key
+    ).first()
+
+    if setting:
+        # Update existing setting
+        setting.value = str(value)
+    else:
+        # Create new setting
+        setting = SystemSetting(
+            setting_type=setting_type,
+            key=key,
+            value=str(value)
+        )
+        db.session.add(setting)
+    
+    db.session.commit()
+
+def get_system_setting(setting_type, key, default=None):
+    """Get a system-wide setting from the database"""
+    setting = SystemSetting.query.filter_by(
+        setting_type=setting_type,
+        key=key
+    ).first()
+
+    if setting:
+        # Try to convert to the appropriate type
+        try:
+            # First try to convert to float
+            return float(setting.value)
+        except ValueError:
+            # If that fails, check if it's a boolean
+            if setting.value.lower() in ('true', 'false'):
+                return setting.value.lower() == 'true'
+            # Otherwise return as string
+            return setting.value
+    return default
 
 @main.route('/current-readings')
 @login_required

@@ -39,3 +39,19 @@ class SensorReading(db.Model):
 
     def __repr__(self):
         return f'<SensorReading {self.timestamp}: CO2={self.co2}ppm, Temp={self.temperature}°F, Humidity={self.humidity}%>'
+
+class SystemSetting(db.Model):
+    __tablename__ = 'system_settings'
+
+    id = db.Column(db.Integer, primary_key=True)
+    setting_type = db.Column(db.String(50), nullable=False)
+    key = db.Column(db.String(50), nullable=False)
+    value = db.Column(db.String(255), nullable=False)
+    updated_at = db.Column(db.DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    __table_args__ = (
+        db.UniqueConstraint('setting_type', 'key', name='unique_system_setting'),
+    )
+
+    def __repr__(self):
+        return f'<SystemSetting {self.setting_type}.{self.key}={self.value}>'
