@@ -22,14 +22,25 @@ def dashboard():
     # Get the latest sensor reading
     reading = SensorReading.query.order_by(SensorReading.timestamp.desc()).first()
 
-    # Check if lights are on (you may need to adjust this logic based on your app)
-    current_hour = datetime.now().hour
-    lights_on = 6 <= current_hour <= 20
+    # Get light schedule from settings
+    light_on_time = get_system_setting('light', 'on_time', default='06:00')
+    light_off_time = get_system_setting('light', 'off_time', default='20:00')
+
+    # Convert current time and settings to comparable format
+    current_time = datetime.now().strftime('%H:%M')
+    
+    # Check if lights should be on
+    if light_on_time <= light_off_time:
+        # Simple case: on_time is before off_time in the same day
+        lights_on = light_on_time <= current_time <= light_off_time
+    else:
+        # Complex case: on_time is after off_time (spans midnight)
+        lights_on = current_time >= light_on_time or current_time <= light_off_time
 
     return render_template('dashboard.html',
-                          current_user=current_user,
-                          reading=reading,
-                          lights_on=lights_on,
+                        current_user=current_user,
+                        reading=reading,
+                        lights_on=lights_on,
                         chart_title="Last 48 Hours")
 
 
@@ -223,16 +234,22 @@ def current_readings():
     # Get the latest sensor reading
     reading = SensorReading.query.order_by(SensorReading.timestamp.desc()).first()
 
-    # Check if lights are on (you may need to adjust this logic based on your app)
-    # For now, we'll assume lights are on during the day
-    import datetime
-    current_hour = datetime.datetime.now().hour
-    lights_on = 6 <= current_hour <= 20
+    # Get light schedule from settings
+    light_on_time = get_system_setting('light', 'on_time', default='06:00')
+    light_off_time = get_system_setting('light', 'off_time', default='20:00')
+
+    # Convert current time and settings to comparable format
+    current_time = datetime.now().strftime('%H:%M')
+    
+    # Check if lights should be on
+    if light_on_time <= light_off_time:
+        lights_on = light_on_time <= current_time <= light_off_time
+    else:
+        lights_on = current_time >= light_on_time or current_time <= light_off_time
 
     return render_template('partials/current_readings.html',
-                          reading=reading,
-                          lights_on=lights_on)
-
+                        reading=reading,
+                        lights_on=lights_on)
 
 @main.route('/api/chart-data')
 @login_required
