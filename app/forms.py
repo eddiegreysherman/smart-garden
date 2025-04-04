@@ -62,12 +62,12 @@ class TemperatureSettingsForm(FlaskForm):
     submit = SubmitField('Save Settings')
 
 class HumiditySettingsForm(FlaskForm):
-    humidity_min = IntegerField('Minimum Humidity (%)', 
+    humidity_min = FloatField('Minimum Humidity (%)', 
         validators=[
             DataRequired(),
             NumberRange(min=0, max=100)
         ])
-    humidity_max = IntegerField('Maximum Humidity (%)', 
+    humidity_max = FloatField('Maximum Humidity (%)', 
         validators=[
             DataRequired(),
             NumberRange(min=0, max=100)
@@ -75,12 +75,12 @@ class HumiditySettingsForm(FlaskForm):
     submit = SubmitField('Save Settings')
 
 class CO2SettingsForm(FlaskForm):
-    co2_min = IntegerField('Minimum CO2 (PPM)', 
+    co2_min = FloatField('Minimum CO2 (PPM)', 
         validators=[
             DataRequired(),
             NumberRange(min=0, max=500)
         ])
-    co2_max = IntegerField('Maximum CO2 (PPM)', 
+    co2_max = FloatField('Maximum CO2 (PPM)', 
         validators=[
             DataRequired(),
             NumberRange(min=500, max=4000)
