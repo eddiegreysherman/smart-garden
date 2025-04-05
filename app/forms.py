@@ -102,6 +102,19 @@ class LightSettingsForm(FlaskForm):
             if on_minutes == off_minutes:
                 raise ValidationError('On and Off times cannot be the same')
 
+class MoistureSettingsForm(FlaskForm):
+    moisture_min = FloatField('Minimum Moisture Level (%)', 
+        validators=[
+            DataRequired(),
+            NumberRange(min=0, max=100)
+        ])
+    moisture_max = FloatField('Maximum Moisture Level (%)', 
+        validators=[
+            DataRequired(),
+            NumberRange(min=0, max=100)
+        ])
+    submit = SubmitField('Save Changes')
+
 class UserSettingsForm(FlaskForm):
     email = StringField('Email Address', 
         validators=[

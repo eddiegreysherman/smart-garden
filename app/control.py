@@ -5,6 +5,7 @@ from sqlalchemy import func, and_
 from app import create_app, db
 from app.models import SensorReading, SystemSetting
 from app.routes import get_system_setting
+from app.utils.soil_sensor import SoilSensor
 
 class ControlSystem:
     def __init__(self):
@@ -12,8 +13,9 @@ class ControlSystem:
         GPIO.setmode(GPIO.BCM)
 
         # Define GPIO pins (update with your actual pins)
-        self.LIGHT_RELAY_PIN = 17  # Example pin
-        self.FAN_RELAY_PIN = 18    # Example pin
+        self.LIGHT_RELAY_PIN = 17  # LIGHT RELAY
+        self.FAN_RELAY_PIN = 18    # FAN RELAY
+        self.PUMP_RELAY_PIN = 23   # PUMP RELAY
 
         # Setup GPIO pins
         self.setup_gpio()
@@ -27,9 +29,11 @@ class ControlSystem:
         """Setup GPIO pins"""
         GPIO.setup(self.LIGHT_RELAY_PIN, GPIO.OUT)
         GPIO.setup(self.FAN_RELAY_PIN, GPIO.OUT)
+        GPIO.setup(self.PUMP_RELAY_PIN, GPIO.OUT)
         # Initialize relays to OFF state
         GPIO.output(self.LIGHT_RELAY_PIN, GPIO.LOW)
         GPIO.output(self.FAN_RELAY_PIN, GPIO.LOW)
+        GPIO.output(self.PUMP_RELAY_PIN, GPIO.LOW)
 
     def get_average_readings(self, minutes=10):
         """Get average sensor readings for the last X minutes"""
@@ -38,10 +42,21 @@ class ControlSystem:
         return db.session.query(
             func.avg(SensorReading.temperature).label('avg_temp'),
             func.avg(SensorReading.humidity).label('avg_humidity'),
-            func.avg(SensorReading.co2).label('avg_co2')
+            func.avg(SensorReading.co2).label('avg_co2'),
+            func.avg(SensorReading.moisture).label('avg_moisture')
         ).filter(
             SensorReading.timestamp >= time_threshold
         ).first()
+
+    def should_pump_be_on(self, avg_readings):
+    	if not avg_readings or avg_readings.avg_moisture is None:
+        	return False
+
+    	moisture_min = float(get_system_setting('moisture', 'min', default=30))
+    	moisture_max = float(get_system_setting('moisture', 'max', default=80))
+    
+    	return (avg_readings.avg_moisture < moisture_min and 
+           	avg_readings.avg_moisture < moisture_max)
 
     def should_lights_be_on(self):
         """Check if lights should be on based on schedule"""
@@ -72,6 +87,7 @@ class ControlSystem:
 
     def control_systems(self):
         """Control lights and fan based on settings and readings"""
+
         # Get average readings
         avg_readings = self.get_average_readings()
 
@@ -86,6 +102,12 @@ class ControlSystem:
             GPIO.output(self.FAN_RELAY_PIN, GPIO.HIGH)  # Turn on
         else:
             GPIO.output(self.FAN_RELAY_PIN, GPIO.LOW)  # Turn off
+
+        # Control pump based on moisture readings
+        if self.should_pump_be_on(avg_readings):
+            GPIO.output(self.PUMP_RELAY_PIN, GPIO.HIGH)
+        else:
+            GPIO.output(self.PUMP_RELAY_PIN, GPIO.LOW)
 
     def run(self):
         """Main control loop"""

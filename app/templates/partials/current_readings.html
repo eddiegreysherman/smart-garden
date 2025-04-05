@@ -29,10 +29,32 @@
             {% endif %}
         </span>
     </div>
-    <div class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 border-bottom-0 fade-in">
+    <div class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 border-secondary fade-in">
+        <span class="fw-bold text-light"><span class="emoji">🚿</span> Soil Moisture</span>
+        <span class="badge bg-info rounded-pill fs-6 px-3 py-2 shadow-md">
+            {% if reading and reading.moisture %}
+                {{ "%.1f"|format(reading.moisture) }}%
+            {% else %}
+                N/A
+            {% endif %}
+        </span>
+    </div>
+    <div class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 fade-in">
         <span class="fw-bold text-light"><span class="emoji">💡</span> Lights: </span>
         <span class="badge {% if lights_on %}bg-warning{% else %}bg-secondary{% endif %} rounded-pill fs-6 px-3 py-2">
             {% if lights_on %}ON{% else %}OFF{% endif %}
+        </span>
+    </div>
+    <div class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 fade-in">
+        <span class="fw-bold text-light"><span class="emoji">💨</span> Fan: </span>
+        <span class="badge {% if fan_on %}bg-warning{% else %}bg-secondary{% endif %} rounded-pill fs-6 px-3 py-2">
+            {% if fan_on %}ON{% else %}OFF{% endif %}
+        </span>
+    </div>
+    <div class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center px-0 border-bottom-0 fade-in">
+        <span class="fw-bold text-light"><span class="emoji">⛽</span> Pump: </span>
+        <span class="badge {% if pump_on %}bg-warning{% else %}bg-secondary{% endif %} rounded-pill fs-6 px-3 py-2">
+            {% if pump_on %}ON{% else %}OFF{% endif %}
         </span>
     </div>
 </div>

@@ -22,21 +22,13 @@ def dashboard():
     # Get the latest sensor reading
     reading = SensorReading.query.order_by(SensorReading.timestamp.desc()).first()
 
-    # Get statuses for indicators fan, lights, and pump
+    # Get light schedule from settings
     light_on_time = get_system_setting('light', 'on_time', default='06:00')
     light_off_time = get_system_setting('light', 'off_time', default='20:00')
-    fan_on_temp = get_system_setting('temperature', 'max', default=75)  # Turn on when above this
-    pump_on_moisture = get_system_setting('moisture', 'min', default=30)  # Turn on when below this
 
     # Convert current time and settings to comparable format
     current_time = datetime.now().strftime('%H:%M')
     
-    fan_on = False
-    pump_on = False
-    if reading:
-        fan_on = reading.temperature > fan_on_temp
-        pump_on = reading.moisture < pump_on_moisture
-
     # Check if lights should be on
     if light_on_time <= light_off_time:
         # Simple case: on_time is before off_time in the same day
@@ -49,8 +41,6 @@ def dashboard():
                         current_user=current_user,
                         reading=reading,
                         lights_on=lights_on,
-                        fan_on=fan_on,
-                        pump_on=pump_on,
                         chart_title="Last 48 Hours")
 
 
@@ -269,17 +259,9 @@ def current_readings():
     # Get light schedule from settings
     light_on_time = get_system_setting('light', 'on_time', default='06:00')
     light_off_time = get_system_setting('light', 'off_time', default='20:00')
-    fan_on_temp = get_system_setting('temperature', 'max', default=75)  # Turn on when above this
-    pump_on_moisture = get_system_setting('moisture', 'min', default=30)  # Turn on when below this
 
     # Convert current time and settings to comparable format
     current_time = datetime.now().strftime('%H:%M')
-
-    fan_on = False
-    pump_on = False
-    if reading:
-        fan_on = reading.temperature > fan_on_temp
-        pump_on = reading.moisture < pump_on_moisture
     
     # Check if lights should be on
     if light_on_time <= light_off_time:
@@ -289,9 +271,7 @@ def current_readings():
 
     return render_template('partials/current_readings.html',
                         reading=reading,
-                        lights_on=lights_on,
-                        fan_on=fan_on,
-                        pump_on=pump_on)
+                        lights_on=lights_on)
 
 @main.route('/api/chart-data')
 @login_required

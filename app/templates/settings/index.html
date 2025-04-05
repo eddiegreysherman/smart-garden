@@ -9,44 +9,50 @@
                     <h5 class="mb-1">🌡️ Temperature Settings</h5>
                     <small class="text-muted">Current range: {{ current_settings.temperature.min }}°F - {{ current_settings.temperature.max }}°F</small>
                 </div>
-                <span class="badge bg-primary rounded-pill">Edit</span>
+                <span class="badge bg-primary rounded-pill fs-6 px-3 py-2">Edit</span>
             </a>
             <a href="{{ url_for('main.humidity_settings') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="mb-1">💧 Humidity Settings</h5>
                     <small class="text-muted">Current range: {{ current_settings.humidity.min }}% - {{ current_settings.humidity.max }}%</small>
                 </div>
-                <span class="badge bg-primary rounded-pill">Edit</span>
+                <span class="badge bg-primary rounded-pill fs-6 px-3 py-2">Edit</span>
             </a>
             <a href="{{ url_for('main.co2_settings') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                 <div>
                     <h5 class="mb-1">🍃 CO2 Settings</h5>
                     <small class="text-muted">Current range: {{ current_settings.co2.min }}PPM - {{ current_settings.co2.max }}PPM</small>
                 </div>
-                <span class="badge bg-primary rounded-pill">Edit</span>
+                <span class="badge bg-primary rounded-pill fs-6 px-3 py-2">Edit</span>
             </a>
             <a href="{{ url_for('main.light_settings') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
                <div>
                    <h5 class="mb-1">☀️ Light Schedule</h5>
                    <small class="text-muted">On: {{ current_settings.light.on_time }} - Off: {{ current_settings.light.off_time }}</small>
                </div>
-               <span class="badge bg-primary rounded-pill">Edit</span>
+               <span class="badge bg-primary rounded-pill fs-6 px-3 py-2">Edit</span>
             </a>
-            <a href="{{ url_for('main.user_settings') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-      		<div>
-        	    <h5 class="mb-1">👤 User Settings</h5>
-        	    <small class="text-muted">
-            		{{ current_settings.user.email }}
-            		{% if current_settings.user.alerts_enabled %}
-                		(Alerts Enabled)
-            		{% else %}
-                		(Alerts Disabled)
-            		{% endif %}
-        	    </small>
+            <a href="{{ url_for('main.moisture_settings') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+    		<div>
+        	    <h5 class="mb-1">🚿 Soil Moisture Settings</h5>
+                    <small class="text-muted">Current range: {{ current_settings.moisture.min }}% - {{ current_settings.moisture.max }}%</small>
     		</div>
-    		<span class="badge bg-primary rounded-pill">Edit</span>
-	    </a>
-            <!-- Add other settings links as needed -->
+    		<span class="badge bg-primary rounded-pill fs-6 px-3 py-2">Edit</span>
+	   </a>
+           <a href="{{ url_for('main.user_settings') }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-1">👤 User Settings</h5>
+                    <small class="text-muted">
+                        {{ current_settings.user.email }}
+                        {% if current_settings.user.alerts_enabled %}
+                                (Alerts Enabled)
+                        {% else %}
+                                (Alerts Disabled)
+                        {% endif %}
+                    </small>
+                </div>
+                <span class="badge bg-primary rounded-pill fs-6 px-3 py-2">Edit</span>
+            </a>
         </div>
     </div>
 </div>

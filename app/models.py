@@ -36,9 +36,10 @@ class SensorReading(db.Model):
     co2 = db.Column(db.Float, nullable=False)
     temperature = db.Column(db.Float, nullable=False)
     humidity = db.Column(db.Float, nullable=False)
+    moisture = db.Column(db.Float, nullable=True)
 
     def __repr__(self):
-        return f'<SensorReading {self.timestamp}: CO2={self.co2}ppm, Temp={self.temperature}°F, Humidity={self.humidity}%>'
+        return f'<SensorReading {self.timestamp}: CO2={self.co2}ppm, Temp={self.temperature}°F, Humidity={self.humidity}, Moisture={self.moisture}%>'
 
 class SystemSetting(db.Model):
     __tablename__ = 'system_settings'

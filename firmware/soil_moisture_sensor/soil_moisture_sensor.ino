@@ -1,10 +1,11 @@
+
 const int moistureSensorPin = A0;
 const long interval = 5000;
 unsigned long previousMillis = 0;
 
 // Calibration values
-int airValue = 669;  // Value in air (completely dry) - adjust this!
-int waterValue = 202;   // Value in water (completely wet) - adjust this!
+int airValue = 669;    // Value in air (completely dry) - adjust this!
+int waterValue = 202;  // Value in water (completely wet) - adjust this!
 
 void setup() {
   Serial.begin(9600);
@@ -26,8 +27,9 @@ void loop() {
     // Constrain to prevent values outside 0-100%
     moisturePercentage = constrain(moisturePercentage, 0, 100);
     
-    // Send formatted data
-    Serial.print(" MOISTURE:");
-    Serial.println(moisturePercentage);
+    // Send only moisture percentage in JSON format
+    Serial.print("{\"moisture\":");
+    Serial.print(moisturePercentage);
+    Serial.println("}");
   }
 }
