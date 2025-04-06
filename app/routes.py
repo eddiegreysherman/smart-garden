@@ -26,6 +26,7 @@ def dashboard():
     light_on_time = get_system_setting('light', 'on_time', default='06:00')
     light_off_time = get_system_setting('light', 'off_time', default='20:00')
     fan_on_temp = get_system_setting('temperature', 'max', default=75)  # Turn on when above this
+    fan_on_humidity = get_system_setting('humidity', 'max', default=70) 
     pump_on_moisture = get_system_setting('moisture', 'min', default=30)  # Turn on when below this
 
     # Convert current time and settings to comparable format
@@ -34,7 +35,7 @@ def dashboard():
     fan_on = False
     pump_on = False
     if reading:
-        fan_on = reading.temperature > fan_on_temp
+        fan_on = (reading.temperature > fan_on_temp) or (reading.humidity > fan_on_humidity)
         pump_on = reading.moisture < pump_on_moisture
 
     # Check if lights should be on
@@ -270,6 +271,7 @@ def current_readings():
     light_on_time = get_system_setting('light', 'on_time', default='06:00')
     light_off_time = get_system_setting('light', 'off_time', default='20:00')
     fan_on_temp = get_system_setting('temperature', 'max', default=75)  # Turn on when above this
+    fan_on_humidity = get_system_setting('humidity', 'max', default=70)
     pump_on_moisture = get_system_setting('moisture', 'min', default=30)  # Turn on when below this
 
     # Convert current time and settings to comparable format
@@ -278,7 +280,7 @@ def current_readings():
     fan_on = False
     pump_on = False
     if reading:
-        fan_on = reading.temperature > fan_on_temp
+        fan_on = (reading.temperature > fan_on_temp) or (reading.humidity > fan_on_humidity)
         pump_on = reading.moisture < pump_on_moisture
     
     # Check if lights should be on
