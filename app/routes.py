@@ -89,8 +89,8 @@ def settings():
         },
         'moisture': {
             'min': get_system_setting('moisture', 'min', default='30'),
-            'max': get_system_setting('moisture', 'max', default='80')
-        }
+    	    'pump_duration': get_system_setting('moisture', 'pump_duration', default='60')
+	}
     }
 
     return render_template('settings/index.html', 
@@ -181,13 +181,13 @@ def moisture_settings():
     
     if form.validate_on_submit():
         save_system_setting('moisture', 'min', form.moisture_min.data)
-        save_system_setting('moisture', 'max', form.moisture_max.data)
+        save_system_setting('moisture', 'pump_duration', form.pump_duration.data)
         flash('Moisture settings updated successfully!', 'success')
         return redirect(url_for('main.moisture_settings'))
 
     # Load current settings
     form.moisture_min.data = get_system_setting('moisture', 'min', default=30)
-    form.moisture_max.data = get_system_setting('moisture', 'max', default=80)
+    form.pump_duration.data = get_system_setting('moisture', 'pump_duration', default=60)
     
     return render_template('settings/moisture.html', form=form)
 

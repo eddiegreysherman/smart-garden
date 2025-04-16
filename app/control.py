@@ -35,6 +35,7 @@ class ControlSystem:
         self.LIGHT_RELAY_PIN = 17  # LIGHT RELAY
         self.FAN_RELAY_PIN = 18    # FAN RELAY
         self.PUMP_RELAY_PIN = 23   # PUMP RELAY
+	self.pump_start_time = None
 
         # Setup GPIO pins
         self.setup_gpio()
@@ -75,18 +76,37 @@ class ControlSystem:
         return results
 
     def should_pump_be_on(self, avg_readings):
+        """Determine if pump should be on based on moisture level and timer"""
         if not avg_readings or avg_readings.avg_moisture is None:
             logger.debug("No moisture readings available, keeping pump off")
             return False
 
         moisture_min = float(get_system_setting('moisture', 'min', default=30))
-        moisture_max = float(get_system_setting('moisture', 'max', default=80))
+        pump_duration = float(get_system_setting('moisture', 'pump_duration', default=60))  # in seconds
         
-        result = (avg_readings.avg_moisture < moisture_min and 
-                avg_readings.avg_moisture < moisture_max)
+        # Check if pump is currently running
+        pump_is_running = GPIO.input(self.PUMP_RELAY_PIN)
+        current_time = time.time()
         
-        logger.debug(f"Pump decision: {'ON' if result else 'OFF'} (Current: {avg_readings.avg_moisture:.1f}%, Min: {moisture_min}%, Max: {moisture_max}%)")
-        return result
+        if pump_is_running:
+            # If pump is running, check if it's time to turn off
+            if not hasattr(self, 'pump_start_time') or self.pump_start_time is None:
+                logger.warning("Pump is running but no start time recorded, turning off")
+                return False
+            
+            elapsed_time = current_time - self.pump_start_time
+            if elapsed_time >= pump_duration:
+                logger.info(f"Pump timer expired after {elapsed_time:.1f} seconds")
+                self.pump_start_time = None
+                return False
+            return True
+        else:
+            # If pump is not running, check if it should start
+            if avg_readings.avg_moisture < moisture_min:
+                logger.info(f"Starting pump: moisture {avg_readings.avg_moisture:.1f}% below minimum {moisture_min}%")
+                self.pump_start_time = current_time
+                return True
+            return False
 
     def should_lights_be_on(self):
         """Check if lights should be on based on schedule"""

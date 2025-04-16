@@ -18,12 +18,12 @@
                         <div class="form-text">Pump will turn on when moisture falls below this percentage</div>
                     </div>
                     <div class="mb-3">
-                        {{ form.moisture_max.label(class="form-label") }}
-                        {{ form.moisture_max(class="form-control") }}
-                        {% if form.moisture_max.errors %}
-                            <div class="alert alert-danger">{{ form.moisture_max.errors[0] }}</div>
+                        {{ form.pump_duration.label(class="form-label") }}
+                        {{ form.pump_duration(class="form-control") }}
+                        {% if form.pump_duration.errors %}
+                            <div class="alert alert-danger">{{ form.pump_duration.errors[0] }}</div>
                         {% endif %}
-                        <div class="form-text">Pump will turn off when moisture reaches this percentage</div>
+                        <div class="form-text">Duration the pump will run when activated (in seconds)</div>
                     </div>
                     {{ form.submit(class="btn btn-primary") }}
                 </div>
