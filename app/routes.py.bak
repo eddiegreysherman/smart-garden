@@ -9,32 +9,16 @@ from app.camera import generate_frames
 from app.forms import TemperatureSettingsForm, HumiditySettingsForm, CO2SettingsForm, LightSettingsForm, UserSettingsForm, MoistureSettingsForm
 from app import db
 
-# Create a Blueprint named 'main' for route organization
 main = Blueprint('main', __name__)
 
 @main.route('/')
 @login_required
 def index():
-    """
-    Root route that redirects to the dashboard.
-    Requires user authentication.
-    """
     return redirect('/dashboard')
 
 @main.route('/dashboard')
 @login_required
 def dashboard():
-    """
-    Main dashboard view displaying the system status.
-    
-    Fetches:
-    - Latest sensor reading from the database
-    - System settings for environmental controls (lights, fan, pump)
-    - Calculates current operational status of equipment
-    
-    Dashboard shows real-time sensor data and equipment statuses.
-    Requires user authentication.
-    """
     # Get the latest sensor reading
     reading = SensorReading.query.order_by(SensorReading.timestamp.desc()).first()
 
@@ -74,13 +58,6 @@ def dashboard():
 @main.route('/video_feed')
 @login_required
 def video_feed():
-    """
-    Provides a live video stream from the camera.
-    
-    Returns a multipart HTTP response that continuously streams 
-    camera frames for viewing in the web interface.
-    Requires user authentication.
-    """
     return Response(
         generate_frames(),
         mimetype='multipart/x-mixed-replace; boundary=frame'
@@ -89,20 +66,6 @@ def video_feed():
 @main.route('/settings')
 @login_required
 def settings():
-    """
-    Main settings page that displays all system configuration options.
-    
-    Collects all current settings from the database including:
-    - Temperature ranges
-    - Humidity ranges
-    - CO2 levels
-    - Light schedule
-    - User preferences
-    - Moisture settings
-    
-    Organizes them into a structured dictionary for the template.
-    Requires user authentication.
-    """
     current_settings = {
         'temperature': {
             'min': get_system_setting('temperature', 'min', default=65),
@@ -136,15 +99,6 @@ def settings():
 @main.route('/settings/temperature', methods=['GET', 'POST'])
 @login_required
 def temperature_settings():
-    """
-    Temperature settings page with form for minimum and maximum temperature.
-    
-    GET: Displays form with current temperature settings
-    POST: Processes form submission to update temperature settings
-    
-    Updates the database with new temperature thresholds when form is submitted.
-    Requires user authentication.
-    """
     form = TemperatureSettingsForm()
     
     if form.validate_on_submit():
@@ -162,15 +116,6 @@ def temperature_settings():
 @main.route('/settings/humidity', methods=['GET', 'POST'])
 @login_required
 def humidity_settings():
-    """
-    Humidity settings page with form for minimum and maximum humidity levels.
-    
-    GET: Displays form with current humidity settings
-    POST: Processes form submission to update humidity settings
-    
-    Updates the database with new humidity thresholds when form is submitted.
-    Requires user authentication.
-    """
     form = HumiditySettingsForm()
     
     if form.validate_on_submit():
@@ -188,15 +133,6 @@ def humidity_settings():
 @main.route('/settings/co2', methods=['GET', 'POST'])
 @login_required
 def co2_settings():
-    """
-    CO2 settings page with form for minimum and maximum CO2 levels.
-    
-    GET: Displays form with current CO2 settings
-    POST: Processes form submission to update CO2 settings
-    
-    Updates the database with new CO2 thresholds when form is submitted.
-    Requires user authentication.
-    """
     form = CO2SettingsForm()
     
     if form.validate_on_submit():
@@ -214,16 +150,6 @@ def co2_settings():
 @main.route('/settings/light', methods=['GET', 'POST'])
 @login_required
 def light_settings():
-    """
-    Light schedule settings page with form for light on/off times.
-    
-    GET: Displays form with current light schedule
-    POST: Processes form submission to update light schedule
-    
-    Handles time format conversion between time objects and strings.
-    Updates the database with new light schedule when form is submitted.
-    Requires user authentication.
-    """
     form = LightSettingsForm()
     
     if form.validate_on_submit():
@@ -251,15 +177,6 @@ def light_settings():
 @main.route('/settings/moisture', methods=['GET', 'POST'])
 @login_required
 def moisture_settings():
-    """
-    Moisture settings page with form for minimum moisture level and pump duration.
-    
-    GET: Displays form with current moisture settings
-    POST: Processes form submission to update moisture settings
-    
-    Updates the database with new moisture threshold and pump runtime when form is submitted.
-    Requires user authentication.
-    """
     form = MoistureSettingsForm()
     
     if form.validate_on_submit():
@@ -277,20 +194,6 @@ def moisture_settings():
 @main.route('/settings/user', methods=['GET', 'POST'])
 @login_required
 def user_settings():
-    """
-    User settings page for managing personal preferences and account details.
-    
-    GET: Displays form with current user settings
-    POST: Processes form submission to update user settings
-    
-    Handles:
-    - Email address changes
-    - Password changes
-    - Alert notification preferences
-    
-    Updates the database with new user settings when form is submitted.
-    Requires user authentication.
-    """
     form = UserSettingsForm()
 
     if form.validate_on_submit():
@@ -317,17 +220,7 @@ def user_settings():
     return render_template('settings/user.html', form=form)
 
 def save_system_setting(setting_type, key, value):
-    """
-    Save a system-wide setting to the database.
-    
-    Args:
-        setting_type (str): Category of setting (temperature, humidity, etc.)
-        key (str): Specific setting name within the category
-        value (any): Value to store (will be converted to string)
-    
-    Creates a new setting record if it doesn't exist, otherwise updates existing record.
-    Commits the change to the database.
-    """
+    """Save a system-wide setting to the database"""
     # Check if setting exists
     setting = SystemSetting.query.filter_by(
         setting_type=setting_type,
@@ -349,18 +242,7 @@ def save_system_setting(setting_type, key, value):
     db.session.commit()
 
 def get_system_setting(setting_type, key, default=None):
-    """
-    Get a system-wide setting from the database.
-    
-    Args:
-        setting_type (str): Category of setting (temperature, humidity, etc.)
-        key (str): Specific setting name within the category
-        default (any): Default value to return if setting doesn't exist
-    
-    Returns:
-        The setting value converted to appropriate type (float, boolean, or string),
-        or the default value if setting doesn't exist.
-    """
+    """Get a system-wide setting from the database"""
     setting = SystemSetting.query.filter_by(
         setting_type=setting_type,
         key=key
@@ -382,20 +264,6 @@ def get_system_setting(setting_type, key, default=None):
 @main.route('/current-readings')
 @login_required
 def current_readings():
-    """
-    AJAX endpoint for fetching current sensor readings and system status.
-    
-    Used for real-time updates to the dashboard without full page refresh.
-    
-    Calculates:
-    - Latest sensor readings
-    - Current status of lights (on/off based on schedule)
-    - Current status of fan (on/off based on temperature/humidity thresholds)
-    - Current status of pump (on/off based on moisture threshold)
-    
-    Returns HTML partial for updating the dashboard.
-    Requires user authentication.
-    """
     # Get the latest sensor reading
     reading = SensorReading.query.order_by(SensorReading.timestamp.desc()).first()
 
@@ -430,21 +298,6 @@ def current_readings():
 @main.route('/api/chart-data')
 @login_required
 def chart_data():
-    """
-    API endpoint that provides historical sensor data for charts.
-    
-    Fetches readings from the last 48 hours, grouping by hour to prevent
-    data overload in the chart.
-    
-    Processing:
-    - Gets all readings within 48-hour window
-    - Groups by hour, selecting one reading per hour
-    - Formats timestamps for chart display
-    - Extracts temperature and humidity data series
-    
-    Returns JSON response with data structured for charting library.
-    Requires user authentication.
-    """
     # Get readings from the last 48 hours
     end_time = datetime.utcnow()
     start_time = end_time - timedelta(hours=48)

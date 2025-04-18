@@ -5,6 +5,11 @@ from app.models import User
 from flask_login import current_user
 
 class RegistrationForm(FlaskForm):
+    """
+    Form for new user registration.
+    Collects username, email, and password with confirmation.
+    Includes validation for username uniqueness and password strength.
+    """
     username = StringField('Username',
         validators=[
             DataRequired(),
@@ -29,16 +34,40 @@ class RegistrationForm(FlaskForm):
     submit = SubmitField('Sign Up')
 
     def validate_username(self, username):
+        """
+        Custom validator to ensure username uniqueness.
+        Checks if the username already exists in the database.
+        
+        Args:
+            username: The username field to validate
+            
+        Raises:
+            ValidationError: If username is already taken
+        """
         user = User.query.filter_by(username=username.data).first()
         if user:
             raise ValidationError('That username is already taken.')
 
     def validate_email(self, email):
+        """
+        Custom validator to ensure email uniqueness.
+        Checks if the email is already registered in the database.
+        
+        Args:
+            email: The email field to validate
+            
+        Raises:
+            ValidationError: If email is already registered
+        """
         user = User.query.filter_by(email=email.data).first()
         if user:
             raise ValidationError('That email is already registered.')
 
 class LoginForm(FlaskForm):
+    """
+    Form for user login.
+    Collects email and password for authentication.
+    """
     email = StringField('Email',
         validators=[
             DataRequired(),
@@ -49,6 +78,11 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 class TemperatureSettingsForm(FlaskForm):
+    """
+    Form for configuring temperature thresholds.
+    Sets minimum and maximum acceptable temperature values for the garden environment.
+    Range constrained to prevent extreme values.
+    """
     temp_min = FloatField('Minimum Temperature (°F)', 
         validators=[
             DataRequired(),
@@ -62,6 +96,11 @@ class TemperatureSettingsForm(FlaskForm):
     submit = SubmitField('Save Settings')
 
 class HumiditySettingsForm(FlaskForm):
+    """
+    Form for configuring humidity thresholds.
+    Sets minimum and maximum acceptable humidity levels for the garden environment.
+    Range constrained between 0-100%.
+    """
     humidity_min = FloatField('Minimum Humidity (%)', 
         validators=[
             DataRequired(),
@@ -75,6 +114,11 @@ class HumiditySettingsForm(FlaskForm):
     submit = SubmitField('Save Settings')
 
 class CO2SettingsForm(FlaskForm):
+    """
+    Form for configuring CO2 level thresholds.
+    Sets minimum and maximum acceptable CO2 concentration in parts per million.
+    Range constrained to prevent unhealthy or unrealistic values.
+    """
     co2_min = FloatField('Minimum CO2 (PPM)', 
         validators=[
             DataRequired(),
@@ -88,6 +132,11 @@ class CO2SettingsForm(FlaskForm):
     submit = SubmitField('Save Settings')
 
 class LightSettingsForm(FlaskForm):
+    """
+    Form for configuring light schedule.
+    Sets daily on and off times for grow lights.
+    Includes validation to prevent identical on/off times.
+    """
     light_on_time = TimeField('Lights On Time',
         validators=[DataRequired()])
     light_off_time = TimeField('Lights Off Time',
@@ -95,6 +144,16 @@ class LightSettingsForm(FlaskForm):
     submit = SubmitField('Save Settings')
 
     def validate_light_off_time(self, field):
+        """
+        Custom validator to ensure on and off times are not identical.
+        Converts times to minutes since midnight for comparison.
+        
+        Args:
+            field: The light_off_time field to validate
+            
+        Raises:
+            ValidationError: If on and off times are the same
+        """
         if self.light_on_time.data and field.data:
             # Convert both times to minutes since midnight for comparison
             on_minutes = self.light_on_time.data.hour * 60 + self.light_on_time.data.minute
@@ -103,6 +162,11 @@ class LightSettingsForm(FlaskForm):
                 raise ValidationError('On and Off times cannot be the same')
 
 class MoistureSettingsForm(FlaskForm):
+    """
+    Form for configuring soil moisture thresholds and watering parameters.
+    Sets minimum acceptable moisture level and how long to run the water pump.
+    Range constraints prevent overwatering or system damage.
+    """
     moisture_min = FloatField('Minimum Moisture Level (%)', 
         validators=[DataRequired(), NumberRange(min=0, max=100)])
     pump_duration = IntegerField('Pump Duration (seconds)', 
@@ -110,6 +174,11 @@ class MoistureSettingsForm(FlaskForm):
     submit = SubmitField('Save Settings')
 
 class UserSettingsForm(FlaskForm):
+    """
+    Form for updating user account settings.
+    Allows changing email address, password, and notification preferences.
+    Password change is optional - fields can be left blank to keep current password.
+    """
     email = StringField('Email Address', 
         validators=[
             DataRequired(),
@@ -128,6 +197,16 @@ class UserSettingsForm(FlaskForm):
     submit = SubmitField('Save Settings')
 
     def validate_email(self, email):
+        """
+        Custom validator to ensure email uniqueness when changing email address.
+        Only checks database if the email differs from the user's current email.
+        
+        Args:
+            email: The email field to validate
+            
+        Raises:
+            ValidationError: If new email is already registered to another user
+        """
         if email.data != current_user.email:  # Only check if email is being changed
             user = User.query.filter_by(email=email.data).first()
             if user:

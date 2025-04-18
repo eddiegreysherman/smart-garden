@@ -104,16 +104,10 @@ class LightSettingsForm(FlaskForm):
 
 class MoistureSettingsForm(FlaskForm):
     moisture_min = FloatField('Minimum Moisture Level (%)', 
-        validators=[
-            DataRequired(),
-            NumberRange(min=0, max=100)
-        ])
-    moisture_max = FloatField('Maximum Moisture Level (%)', 
-        validators=[
-            DataRequired(),
-            NumberRange(min=0, max=100)
-        ])
-    submit = SubmitField('Save Changes')
+        validators=[DataRequired(), NumberRange(min=0, max=100)])
+    pump_duration = IntegerField('Pump Duration (seconds)', 
+        validators=[DataRequired(), NumberRange(min=1, max=300)])  # Example max of 5 minutes
+    submit = SubmitField('Save Settings')
 
 class UserSettingsForm(FlaskForm):
     email = StringField('Email Address', 
