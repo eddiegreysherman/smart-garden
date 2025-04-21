@@ -10,9 +10,9 @@ auth = Blueprint('auth', __name__)
 @auth.route('/register', methods=['GET', 'POST'])
 def register():
     # Check if user is authenticated and username is 'admin'
-    #if not current_user.is_authenticated or current_user.username != 'admin':
-    #    flash('You do not have permission to access this page.', 'danger')
-    #    return redirect(url_for('main.index'))
+    if not current_user.is_authenticated or current_user.username != 'admin':
+        flash('You do not have permission to access this page.', 'danger')
+        return redirect(url_for('main.index'))
 
     form = RegistrationForm()
     if form.validate_on_submit():
